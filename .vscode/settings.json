@@ -1,0 +1,5 @@
+{
+  // Suppress the CSS linter warning for Tailwind v4 directives (@theme, @utility, etc.)
+  // VS Code's built-in CSS validator doesn't know about Tailwind v4's custom at-rules.
+  "css.lint.unknownAtRules": "ignore"
+}

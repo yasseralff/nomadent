@@ -1,10 +1,11 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SessionProvider } from "next-auth/react";
 import { useState } from "react";
 
 /**
- * Wraps the app with TanStack Query's QueryClientProvider.
+ * Wraps the app with TanStack Query and Auth.js session providers.
  *
  * WHY a separate component?
  * Next.js root layout.tsx is a Server Component — you can't call useState()
@@ -14,6 +15,10 @@ import { useState } from "react";
  * WHY useState for QueryClient?
  * Creating QueryClient inside useState ensures each browser tab/user gets
  * its own instance, preventing state from leaking between requests.
+ *
+ * WHY SessionProvider here?
+ * SessionProvider must be a Client Component ancestor of any component that
+ * calls useSession(). Placing it here keeps the root layout clean.
  */
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -31,6 +36,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <SessionProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </SessionProvider>
   );
 }
+

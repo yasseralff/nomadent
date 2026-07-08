@@ -1,8 +1,11 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { expenseService } from "@/services/expenseService";
-import type { CreateExpenseInput } from "@/lib/validations";
+import { expenseFetcher } from "@/lib/fetchers/expenseFetcher";
+import type {
+  CreateExpenseInput,
+  UpdateExpenseInput,
+} from "@/server/validation/schemas";
 
 // ─── Query Keys ───────────────────────────────────────────────────────────────
 // Centralising query keys prevents typos and makes invalidation predictable.
@@ -23,7 +26,7 @@ export const expenseKeys = {
 export function useExpenses(page = 1, pageSize = 10) {
   return useQuery({
     queryKey: expenseKeys.list(page, pageSize),
-    queryFn: () => expenseService.getAll(page, pageSize),
+    queryFn: () => expenseFetcher.getAll(page, pageSize),
   });
 }
 
@@ -34,14 +37,31 @@ export function useExpenses(page = 1, pageSize = 10) {
  *
  * Usage:
  *   const { mutate, isPending } = useCreateExpense();
- *   mutate({ title: "Lunch", amount: 12, category: "Food", date: "..." });
+ *   mutate({ title: "Lunch", amount: 12, currency: "GBP", convertedAmount: 15, category: "Food", date: "..." });
  */
 export function useCreateExpense() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateExpenseInput) => expenseService.create(data),
+    mutationFn: (data: CreateExpenseInput) => expenseFetcher.create(data),
     onSuccess: () => {
-      // Invalidate all expense queries so the list auto-refreshes
+      queryClient.invalidateQueries({ queryKey: expenseKeys.all });
+    },
+  });
+}
+
+/**
+ * Updates an existing expense by ID.
+ *
+ * Usage:
+ *   const { mutate: updateExpense } = useUpdateExpense();
+ *   updateExpense({ id: "expense-id", data: { title: "Updated" } });
+ */
+export function useUpdateExpense() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateExpenseInput }) =>
+      expenseFetcher.update(id, data),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: expenseKeys.all });
     },
   });
@@ -57,9 +77,11 @@ export function useCreateExpense() {
 export function useDeleteExpense() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => expenseService.delete(id),
+    mutationFn: (id: string) => expenseFetcher.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: expenseKeys.all });
     },
   });
 }
+
+

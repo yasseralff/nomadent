@@ -1,8 +1,11 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { taskService } from "@/services/taskService";
-import type { CreateTaskInput } from "@/lib/validations";
+import { taskFetcher } from "@/lib/fetchers/taskFetcher";
+import type {
+  CreateTaskInput,
+  UpdateTaskInput,
+} from "@/server/validation/schemas";
 
 // ─── Query Keys ───────────────────────────────────────────────────────────────
 export const taskKeys = {
@@ -22,7 +25,7 @@ export const taskKeys = {
 export function useTasks(page = 1, pageSize = 10) {
   return useQuery({
     queryKey: taskKeys.list(page, pageSize),
-    queryFn: () => taskService.getAll(page, pageSize),
+    queryFn: () => taskFetcher.getAll(page, pageSize),
   });
 }
 
@@ -38,7 +41,25 @@ export function useTasks(page = 1, pageSize = 10) {
 export function useCreateTask() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateTaskInput) => taskService.create(data),
+    mutationFn: (data: CreateTaskInput) => taskFetcher.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: taskKeys.all });
+    },
+  });
+}
+
+/**
+ * Updates a task by ID (title, description, priority, dueDate, or completed).
+ *
+ * Usage:
+ *   const { mutate: updateTask } = useUpdateTask();
+ *   updateTask({ id: "task-id", data: { priority: "HIGH" } });
+ */
+export function useUpdateTask() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateTaskInput }) =>
+      taskFetcher.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: taskKeys.all });
     },
@@ -47,6 +68,7 @@ export function useCreateTask() {
 
 /**
  * Toggles the completed state of a task.
+ * Convenience wrapper — prefer useUpdateTask for full edits.
  *
  * Usage:
  *   const { mutate: toggle } = useToggleTask();
@@ -56,7 +78,7 @@ export function useToggleTask() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, completed }: { id: string; completed: boolean }) =>
-      taskService.toggleComplete(id, completed),
+      taskFetcher.toggleComplete(id, completed),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: taskKeys.all });
     },
@@ -73,9 +95,10 @@ export function useToggleTask() {
 export function useDeleteTask() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => taskService.delete(id),
+    mutationFn: (id: string) => taskFetcher.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: taskKeys.all });
     },
   });
 }
+

@@ -1,8 +1,11 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { goalService } from "@/services/goalService";
-import type { CreateGoalInput } from "@/lib/validations";
+import { goalFetcher } from "@/lib/fetchers/goalFetcher";
+import type {
+  CreateGoalInput,
+  UpdateGoalInput,
+} from "@/server/validation/schemas";
 
 // ─── Query Keys ───────────────────────────────────────────────────────────────
 export const goalKeys = {
@@ -22,7 +25,7 @@ export const goalKeys = {
 export function useGoals(page = 1, pageSize = 10) {
   return useQuery({
     queryKey: goalKeys.list(page, pageSize),
-    queryFn: () => goalService.getAll(page, pageSize),
+    queryFn: () => goalFetcher.getAll(page, pageSize),
   });
 }
 
@@ -38,7 +41,25 @@ export function useGoals(page = 1, pageSize = 10) {
 export function useCreateGoal() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateGoalInput) => goalService.create(data),
+    mutationFn: (data: CreateGoalInput) => goalFetcher.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: goalKeys.all });
+    },
+  });
+}
+
+/**
+ * Updates an existing goal by ID.
+ *
+ * Usage:
+ *   const { mutate: updateGoal } = useUpdateGoal();
+ *   updateGoal({ id: "goal-id", data: { title: "Updated Goal" } });
+ */
+export function useUpdateGoal() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateGoalInput }) =>
+      goalFetcher.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: goalKeys.all });
     },
@@ -56,7 +77,7 @@ export function useContributeGoal() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, amount }: { id: string; amount: number }) =>
-      goalService.contribute(id, amount),
+      goalFetcher.contribute(id, amount),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: goalKeys.all });
     },
@@ -73,9 +94,10 @@ export function useContributeGoal() {
 export function useDeleteGoal() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => goalService.delete(id),
+    mutationFn: (id: string) => goalFetcher.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: goalKeys.all });
     },
   });
 }
+

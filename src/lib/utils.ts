@@ -9,7 +9,7 @@
 export function formatCurrency(
   amount: number,
   currency = "USD",
-  locale = "en-US"
+  locale = "en-GB"
 ): string {
   return new Intl.NumberFormat(locale, {
     style: "currency",
@@ -19,10 +19,10 @@ export function formatCurrency(
 
 /**
  * Formats a Date object or ISO string to a readable date.
- * @example formatDate(new Date()) => "Jul 6, 2026"
+ * @example formatDate(new Date()) => "6 Jul 2026"
  */
 export function formatDate(date: Date | string): string {
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat("en-GB", {
     month: "short",
     day: "numeric",
     year: "numeric",

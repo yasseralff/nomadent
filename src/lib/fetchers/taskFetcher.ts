@@ -1,8 +1,15 @@
 import api from "@/lib/api";
 import type { Task, ApiResponse, PaginatedResponse } from "@/types";
-import type { CreateTaskInput } from "@/lib/validations";
+import type {
+  CreateTaskInput,
+  UpdateTaskInput,
+} from "@/server/validation/schemas";
 
-export const taskService = {
+/**
+ * Client-side HTTP fetchers for the /api/tasks endpoints.
+ * Called exclusively from TanStack Query hooks — never from components directly.
+ */
+export const taskFetcher = {
   /**
    * Fetch a paginated list of the current user's tasks.
    */
@@ -16,7 +23,14 @@ export const taskService = {
     api.post("/tasks", data).then((r) => r.data),
 
   /**
+   * Update an existing task by ID (including toggling completion).
+   */
+  update: (id: string, data: UpdateTaskInput): Promise<ApiResponse<Task>> =>
+    api.put(`/tasks/${id}`, data).then((r) => r.data),
+
+  /**
    * Toggle the completed state of a task.
+   * Convenience wrapper around update() for quick-complete toggles.
    */
   toggleComplete: (id: string, completed: boolean): Promise<ApiResponse<Task>> =>
     api.patch(`/tasks/${id}`, { completed }).then((r) => r.data),

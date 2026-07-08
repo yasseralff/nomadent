@@ -44,3 +44,5 @@ next-env.d.ts
 AGENTS.md
 DESIGN.md
 TODO.md
+
+/src/generated/prisma

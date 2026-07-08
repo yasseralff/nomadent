@@ -14,9 +14,11 @@ const sora = Sora({
 });
 
 export const metadata: Metadata = {
-  title: "Nomadent",
-  description: "Nomadent application",
+  title: "Nomadent — International Student Assistant",
+  description:
+    "Manage your money, visa deadlines, tasks, and savings goals as an international student. Multi-currency expense tracking, deadline reminders, and work-hour monitoring — all in one place.",
 };
+
 
 export default function RootLayout({
   children,

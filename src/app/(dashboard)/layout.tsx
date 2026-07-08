@@ -6,12 +6,12 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="flex flex-row">
+        <div className="min-h-screen">
             <Sidebar />
-
-            <main className="flex-1">
+            {/* Offset for the fixed floating sidebar (~200px wide + 16px gap + 16px margin) */}
+            <main className="pl-[232px] pr-6 py-6 min-h-screen">
                 {children}
             </main>
         </div>
     );
-}
+}

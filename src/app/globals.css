@@ -1,47 +1,123 @@
 @import "tailwindcss";
 
+/* ─── Dark Mode (default) — §10.1 ─────────────────────────────────────────── */
 :root {
-  /* Ethereal Moss Palette */
-  --background: #111413;
-  --foreground: #e1e3e1;
+  /* Surface scale */
+  --surface:                    #111413;
+  --surface-container-lowest:   #0c0f0e;
+  --surface-container:          #1d201f;
+  --surface-container-high:     #282b29;
+  --surface-container-highest:  #323534;
 
-  --card: #1d201f;
-  --card-hover: #282b29;
+  /* Alias used by Tailwind @theme */
+  --background: var(--surface);
 
-  --primary: #9db4a9;
+  /* Text */
+  --on-surface:         #e1e3e1;
+  --on-surface-variant: #c2c8c3;
+  --foreground: var(--on-surface);
+
+  /* Card shortcuts (used widely in components) */
+  --card:       var(--surface-container);
+  --card-hover: var(--surface-container-high);
+
+  /* Borders */
+  --outline:         #8c928e;
+  --outline-variant: #424845;
+  --border: var(--outline-variant);
+
+  /* Brand */
+  --primary:            #9db4a9;
   --primary-foreground: #20342d;
+  --on-primary:         #20342d;
+  --secondary:          #bfc9c3;
+  --tertiary:           #c7cbc8;
 
-  --border: #323534;
+  /* Muted (convenience aliases) */
+  --muted:            var(--outline);
+  --muted-foreground: var(--on-surface-variant);
 
-  --muted: #8c928e;
-  --muted-foreground: #c2c8c3;
+  /* Semantic — calm baseline */
+  --success: #8fbfa0;
 
-  --success: #7da08b;
-  --warning: #bfa36a;
-  --danger: #d18b8b;
+  /* Semantic — SATURATED alert exceptions (§10.1: "must visually interrupt") */
+  --warning: #f0a850;
+  --error:   #ff6b5e;
 
+  /* Shape */
   --radius: 24px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-hover: var(--card-hover);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-border: var(--border);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-danger: var(--danger);
+/* ─── Light Mode — §10.2 ───────────────────────────────────────────────────── */
+[data-theme="light"] {
+  /* Surface scale */
+  --surface:                    #f7f8f6;
+  --surface-container-lowest:   #ffffff;
+  --surface-container:          #eef1ee;
+  --surface-container-high:     #e3e7e3;
+  --surface-container-highest:  #d8ddd9;
 
-  --radius-xl: var(--radius);
-  --font-sans: var(--font-plus-jakarta), system-ui, sans-serif;
-  --font-sora: var(--font-sora), system-ui, sans-serif;
+  --background: var(--surface);
+
+  /* Text */
+  --on-surface:         #1a1d1c;
+  --on-surface-variant: #4c534e;
+  --foreground: var(--on-surface);
+
+  --card:       var(--surface-container);
+  --card-hover: var(--surface-container-high);
+
+  /* Borders */
+  --outline:         #c7cdc9;
+  --outline-variant: #dde2de;
+  --border: var(--outline-variant);
+
+  /* Brand — darker sage for contrast on light backgrounds */
+  --primary:            #4e635a;
+  --primary-foreground: #f4f7f5;
+  --on-primary:         #f4f7f5;
+  --secondary:          #5e7268;
+  --tertiary:           #6b7a72;
+
+  --muted:            var(--outline);
+  --muted-foreground: var(--on-surface-variant);
+
+  --success: #2e7d45;
+
+  /* Semantic — tuned for light contrast (§10.2) */
+  --warning: #c9700e;
+  --error:   #c4362a;
 }
 
+/* ─── Tailwind Theme Bridge ────────────────────────────────────────────────── */
+@theme inline {
+  --color-background:               var(--background);
+  --color-foreground:               var(--foreground);
+  --color-surface:                  var(--surface);
+  --color-surface-container:        var(--surface-container);
+  --color-surface-container-high:   var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-card:                     var(--card);
+  --color-card-hover:               var(--card-hover);
+  --color-primary:                  var(--primary);
+  --color-primary-foreground:       var(--primary-foreground);
+  --color-secondary:                var(--secondary);
+  --color-tertiary:                 var(--tertiary);
+  --color-border:                   var(--border);
+  --color-outline:                  var(--outline);
+  --color-outline-variant:          var(--outline-variant);
+  --color-muted:                    var(--muted);
+  --color-muted-foreground:         var(--muted-foreground);
+  --color-success:                  var(--success);
+  --color-warning:                  var(--warning);
+  --color-error:                    var(--error);
+
+  --radius-xl:   var(--radius);
+  --font-sans:   var(--font-plus-jakarta), system-ui, sans-serif;
+  --font-sora:   var(--font-sora), system-ui, sans-serif;
+}
+
+/* ─── Base Styles ──────────────────────────────────────────────────────────── */
 * {
   box-sizing: border-box;
 }
@@ -59,7 +135,6 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-
 input,
 textarea,
 select {
@@ -75,20 +150,30 @@ a {
   background: rgba(157, 180, 169, 0.3);
 }
 
-/* Custom Scrollbars */
+/* ─── Custom Scrollbars ────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--background);
+  background: var(--surface-container-lowest);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: var(--outline-variant);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #404944;
+  background: var(--outline);
+}
+
+/* ─── Glassmorphism ────────────────────────────────────────────────────────── */
+/* Named class so sidebar/modal components don't need hardcoded colours in JSX.
+   Uses color-mix() to derive opacity from design tokens — adapts to light mode. */
+.sidebar-glass {
+  background: color-mix(in srgb, var(--surface-container) 90%, transparent);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  box-shadow: 0 0 48px 0 color-mix(in srgb, var(--primary) 5%, transparent);
 }

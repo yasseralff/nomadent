@@ -10,8 +10,7 @@ export default function Home() {
       >
         {/* Wordmark */}
         <span
-          className="text-4xl font-semibold tracking-widest uppercase text-primary transition-opacity duration-300 group-hover:opacity-70"
-          style={{ fontFamily: "var(--font-sora)" }}
+          className="text-4xl font-semibold tracking-widest uppercase text-primary transition-opacity duration-300 group-hover:opacity-70 font-sora"
         >
           Nomadent
         </span>

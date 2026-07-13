@@ -15,8 +15,7 @@ export function AuthCard({ children }: AuthCardProps) {
       {/* Wordmark */}
       <Link href="/" aria-label="Back to home">
         <span
-          className="text-2xl font-semibold tracking-widest uppercase text-primary hover:opacity-70 transition-opacity duration-200"
-          style={{ fontFamily: "var(--font-sora)" }}
+          className="text-2xl font-semibold tracking-widest uppercase text-primary hover:opacity-70 transition-opacity duration-200 font-sora"
         >
           Nomadent
         </span>
@@ -24,13 +23,7 @@ export function AuthCard({ children }: AuthCardProps) {
 
       {/* Glass card */}
       <div
-        className="w-full rounded-3xl border border-outline-variant p-8 flex flex-col gap-6"
-        style={{
-          background: "color-mix(in srgb, var(--surface-container) 90%, transparent)",
-          backdropFilter: "blur(40px)",
-          WebkitBackdropFilter: "blur(40px)",
-          boxShadow: "0 0 48px 0 color-mix(in srgb, var(--primary) 5%, transparent)",
-        }}
+        className="w-full rounded-3xl border border-outline-variant p-8 flex flex-col gap-6 sidebar-glass"
       >
         {children}
       </div>

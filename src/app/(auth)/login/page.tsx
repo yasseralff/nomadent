@@ -14,8 +14,7 @@ export default function LoginPage() {
       {/* Heading */}
       <div className="flex flex-col gap-1">
         <h1
-          className="text-xl font-semibold text-foreground"
-          style={{ fontFamily: "var(--font-sora)" }}
+          className="text-xl font-semibold text-foreground font-sora"
         >
           Welcome back
         </h1>

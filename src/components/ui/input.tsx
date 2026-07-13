@@ -16,8 +16,7 @@ export function Input({ label, error, id, className = "", ...props }: InputProps
       {label && (
         <label
           htmlFor={id}
-          className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"
-          style={{ fontFamily: "var(--font-sora)" }}
+          className="text-xs font-semibold uppercase tracking-wider text-muted-foreground font-sora"
         >
           {label}
         </label>
@@ -28,10 +27,10 @@ export function Input({ label, error, id, className = "", ...props }: InputProps
         className={[
           "w-full bg-transparent px-4 py-2.5 text-sm text-foreground",
           "border-b border-outline-variant outline-none",
-          "rounded-none transition-all duration-200",
+          "rounded-full transition-all duration-200",
           "placeholder:text-muted-foreground",
           // Focus: morphs to pill outline
-          "focus:border-transparent focus:rounded-full focus:ring-1 focus:ring-primary focus:bg-surface-container",
+          "focus:border-transparent focus:ring-1 focus:ring-primary focus:bg-surface-container",
           // Error state
           error ? "border-error focus:ring-error" : "",
           className,

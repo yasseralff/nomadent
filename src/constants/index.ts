@@ -124,3 +124,27 @@ export const TASK_STATUSES = [
 export const DEFAULT_PAGE_SIZE = 10;
 export const DEADLINES_PAGE_SIZE = 20;
 
+// ─── Currency Fallbacks ────────────────────────────────────────────────────────
+
+export const FALLBACK_RATES: Record<string, number> = {
+  USD: 1.0,
+  EUR: 0.92,
+  GBP: 0.78,
+  CAD: 1.36,
+  AUD: 1.50,
+  JPY: 158.0,
+  CNY: 7.25,
+  INR: 83.5,
+  KRW: 1380.0,
+  SGD: 1.35,
+  HKD: 7.8,
+  IDR: 16200.0,
+  MYR: 4.7,
+  THB: 36.5,
+  NZD: 1.63,
+  CHF: 0.90,
+  BRL: 5.4,
+  MXN: 18.0,
+};
+
+

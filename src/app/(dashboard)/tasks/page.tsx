@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { CheckSquare, Plus, CheckCircle2, Circle, AlertCircle, Clock } from "lucide-react";
+import { Plus, CheckCircle2, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { TaskItem } from "@/components/tasks/task-item";
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState([
@@ -13,31 +14,20 @@ export default function TasksPage() {
     { id: 5, title: "Set up local bank account", dueDate: "2026-07-18", priority: "MEDIUM", status: "IN_PROGRESS" }
   ]);
 
-  const getPriorityBadge = (priority: string) => {
-    switch (priority) {
-      case "HIGH":
-        return <span className="text-[10px] bg-error/10 text-error px-2 py-0.5 rounded-full font-sora font-semibold uppercase tracking-wider">High</span>;
-      case "MEDIUM":
-        return <span className="text-[10px] bg-warning/10 text-warning px-2 py-0.5 rounded-full font-sora font-semibold uppercase tracking-wider">Medium</span>;
-      default:
-        return <span className="text-[10px] bg-success/10 text-success px-2 py-0.5 rounded-full font-sora font-semibold uppercase tracking-wider">Low</span>;
-    }
+  const handleStatusToggle = (id: number) => {
+    setTasks(tasks.map(t => t.id === id ? { ...t, status: t.status === "DONE" ? "TODO" : "DONE" } : t));
   };
 
   const getStatusIcon = (status: string, id: number) => {
-    const toggle = () => {
-      setTasks(tasks.map(t => t.id === id ? { ...t, status: t.status === "DONE" ? "TODO" : "DONE" } : t));
-    };
-
     if (status === "DONE") {
       return (
-        <button onClick={toggle} className="text-primary hover:opacity-80 cursor-pointer">
+        <button onClick={() => handleStatusToggle(id)} className="text-primary hover:opacity-80 cursor-pointer">
           <CheckCircle2 size={18} />
         </button>
       );
     }
     return (
-      <button onClick={toggle} className="text-muted-foreground hover:text-primary cursor-pointer">
+      <button onClick={() => handleStatusToggle(id)} className="text-muted-foreground hover:text-primary cursor-pointer">
         <Circle size={18} />
       </button>
     );
@@ -64,7 +54,7 @@ export default function TasksPage() {
         </Button>
       </div>
 
-      {/* Columns: Todo & In Progress (Left), Completed (Right) */}
+      {/* Columns defined at page level */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Pending & In Progress Tasks */}
         <div className="lg:col-span-2 bg-surface-container rounded-3xl border border-outline-variant p-8 flex flex-col gap-6">
@@ -74,28 +64,12 @@ export default function TasksPage() {
             {tasks
               .filter(t => t.status !== "DONE")
               .map(task => (
-                <div key={task.id} className="flex items-center justify-between p-4 bg-surface-container-lowest border border-outline-variant/40 rounded-2xl group transition-all hover:border-outline hover:shadow-sm">
-                  <div className="flex items-center gap-3">
-                    {getStatusIcon(task.status, task.id)}
-                    <div>
-                      <p className="text-sm font-semibold text-on-surface leading-tight font-sans">
-                        {task.title}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground font-sans">
-                          <Clock size={12} />
-                          {task.dueDate}
-                        </span>
-                        {task.status === "IN_PROGRESS" && (
-                          <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.2 rounded font-sans uppercase font-bold">In Progress</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    {getPriorityBadge(task.priority)}
-                  </div>
-                </div>
+                <TaskItem 
+                  key={task.id} 
+                  task={task} 
+                  onStatusToggle={handleStatusToggle} 
+                  statusIcon={getStatusIcon(task.status, task.id)} 
+                />
               ))}
           </div>
         </div>
@@ -108,19 +82,12 @@ export default function TasksPage() {
             {tasks
               .filter(t => t.status === "DONE")
               .map(task => (
-                <div key={task.id} className="flex items-center justify-between p-4 bg-surface-container-lowest/50 border border-outline-variant/20 rounded-2xl opacity-60">
-                  <div className="flex items-center gap-3">
-                    {getStatusIcon(task.status, task.id)}
-                    <div>
-                      <p className="text-sm font-semibold text-on-surface line-through leading-tight font-sans">
-                        {task.title}
-                      </p>
-                      <span className="flex items-center gap-1 text-[11px] text-muted-foreground mt-1 font-sans">
-                        Completed
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                <TaskItem 
+                  key={task.id} 
+                  task={task} 
+                  onStatusToggle={handleStatusToggle} 
+                  statusIcon={getStatusIcon(task.status, task.id)} 
+                />
               ))}
           </div>
         </div>

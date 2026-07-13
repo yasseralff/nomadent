@@ -54,9 +54,8 @@ export function Sidebar() {
             key={href}
             href={href}
             title={label}
-            className="group relative flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200"
+            className="group relative flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 hover:bg-emerald-950 active:bg-emerald-950/50"
             style={{
-              background: isActive ? "rgba(157,180,169,0.15)" : "transparent",
               color: isActive ? "var(--primary)" : "var(--on-surface-variant)",
             }}
           >

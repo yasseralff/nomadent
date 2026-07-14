@@ -1,9 +1,9 @@
 import React from "react";
 import { Receipt, AlertTriangle, CheckSquare, Target, TrendingUp } from "lucide-react";
-import { StatsCard } from "@/components/dashboard/stats-card";
-import { AnalyticsChart } from "@/components/dashboard/analytics-chart";
-import { DeadlinesWidget } from "@/components/dashboard/deadlines-widget";
-import { PendingTasks } from "@/components/dashboard/pending-tasks";
+import { StatsCard } from "@/components/dashboard/StatsCard";
+import { AnalyticsChart } from "@/components/dashboard/AnalyticsChart";
+import { DeadlinesWidget } from "@/components/dashboard/DeadlinesWidget";
+import { PendingTasks } from "@/components/dashboard/PendingTasks";
 
 export default function DashboardPage() {
   return (

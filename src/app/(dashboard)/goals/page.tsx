@@ -2,8 +2,8 @@
 
 import React from "react";
 import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { GoalProgressCard } from "@/components/goals/goal-progress-card";
+import { Button } from "@/components/ui/Button";
+import { GoalProgressCard } from "@/components/goals/GoalProgressCard";
 
 export default function GoalsPage() {
   const mockGoals = [

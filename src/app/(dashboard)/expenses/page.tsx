@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import { Plus, Filter } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ExpensesTable } from "@/components/expenses/expenses-table";
-import { CurrencyConverter } from "@/components/expenses/currency-converter";
+import { Button } from "@/components/ui/Button";
+import { ExpensesTable } from "@/components/expenses/ExpensesTable";
+import { CurrencyConverter } from "@/components/expenses/CurrencyConverter";
 
 export default function ExpensesPage() {
   const [filterCategory, setFilterCategory] = useState("All");

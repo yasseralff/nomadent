@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { AuthCard } from "@/components/auth/auth-card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { AuthCard } from "@/components/auth/AuthCard";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
 
 export const metadata = {
   title: "Create Account — Nomadent",

@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { Plus, CheckCircle2, Circle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { TaskItem } from "@/components/tasks/task-item";
+import { Button } from "@/components/ui/Button";
+import { TaskItem } from "@/components/tasks/TaskItem";
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState([

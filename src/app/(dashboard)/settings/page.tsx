@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { SettingsSidebar } from "@/components/settings/settings-sidebar";
-import { ProfileForm } from "@/components/settings/profile-form";
+import { SettingsSidebar } from "@/components/settings/SettingsSidebar";
+import { ProfileForm } from "@/components/settings/ProfileForm";
 
 export default function SettingsPage() {
   return (

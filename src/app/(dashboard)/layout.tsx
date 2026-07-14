@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Sidebar } from "@/components/shared/sidebar";
-import { Navbar } from "@/components/shared/navbar";
+import { Sidebar } from "@/components/shared/Sidebar";
+import { Navbar } from "@/components/shared/Navbar";
 
 export default function DashboardLayout({
     children,

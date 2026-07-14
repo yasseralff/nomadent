@@ -2,9 +2,9 @@
 
 import React from "react";
 import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { DeadlineCard } from "@/components/deadlines/deadline-card";
-import { WorkHoursBar } from "@/components/deadlines/work-hours-bar";
+import { Button } from "@/components/ui/Button";
+import { DeadlineCard } from "@/components/deadlines/DeadlineCard";
+import { WorkHoursBar } from "@/components/deadlines/WorkHoursBar";
 
 export default function DeadlinesPage() {
   const mockDeadlines = [

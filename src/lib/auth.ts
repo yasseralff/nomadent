@@ -4,7 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { loginSchema } from "@/server/validation/schemas";
+import { loginSchema } from "@/server/validation/auth";
 
 /**
  * Auth.js v4 configuration.

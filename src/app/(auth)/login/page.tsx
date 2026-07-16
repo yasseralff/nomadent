@@ -1,21 +1,66 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-
-export const metadata = {
-  title: "Sign In — Nomadent",
-  description: "Sign in to your Nomadent account to manage your expenses, deadlines, tasks, and goals.",
-};
+import { loginSchema, LoginInput } from "@/server/validation/auth";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (data: LoginInput) => {
+    setIsSubmitting(true);
+    setErrorMsg(null);
+
+    try {
+      const res = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        setErrorMsg("Invalid email or password");
+      } else {
+        router.push("/dashboard");
+        router.refresh();
+      }
+    } catch (err) {
+      setErrorMsg("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    signIn("google", { callbackUrl: "/dashboard" });
+  };
+
   return (
     <AuthCard>
       {/* Heading */}
       <div className="flex flex-col gap-1">
-        <h1
-          className="text-xl font-semibold text-foreground font-sora"
-        >
+        <h1 className="text-xl font-semibold text-foreground font-sora">
           Welcome back
         </h1>
         <p className="text-sm text-muted-foreground">
@@ -23,14 +68,23 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Form — wired in Week 3 (Days 12–13) */}
-      <form className="flex flex-col gap-5" noValidate>
+      {/* Global error banner */}
+      {errorMsg && (
+        <div className="p-3 text-sm text-error bg-error/10 border border-error/20 rounded-2xl">
+          {errorMsg}
+        </div>
+      )}
+
+      {/* Form */}
+      <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)} noValidate>
         <Input
           id="email"
           type="email"
           label="Email"
           placeholder="you@university.edu"
           autoComplete="email"
+          error={errors.email?.message}
+          {...register("email")}
         />
         <Input
           id="password"
@@ -38,10 +92,12 @@ export default function LoginPage() {
           label="Password"
           placeholder="••••••••"
           autoComplete="current-password"
+          error={errors.password?.message}
+          {...register("password")}
         />
 
-        <Button type="submit" fullWidth size="lg">
-          Sign in
+        <Button type="submit" fullWidth size="lg" disabled={isSubmitting}>
+          {isSubmitting ? "Signing in..." : "Sign in"}
         </Button>
       </form>
 
@@ -54,8 +110,8 @@ export default function LoginPage() {
         <span className="h-px flex-1 bg-outline-variant" />
       </div>
 
-      {/* Google OAuth stub — wired in Week 3 */}
-      <Button type="button" variant="ghost" fullWidth>
+      {/* Google OAuth */}
+      <Button type="button" variant="ghost" fullWidth onClick={handleGoogleLogin}>
         <svg
           viewBox="0 0 24 24"
           className="size-4 shrink-0"

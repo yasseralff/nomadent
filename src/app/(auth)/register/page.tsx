@@ -1,21 +1,74 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import api from "@/lib/api";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-
-export const metadata = {
-  title: "Create Account — Nomadent",
-  description: "Create your Nomadent account and start managing your student life abroad.",
-};
+import { registerSchema, RegisterInput } from "@/server/validation/auth";
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (data: RegisterInput) => {
+    setIsSubmitting(true);
+    setErrorMsg(null);
+
+    try {
+      // POST user details to our registration endpoint
+      await api.post("/auth/register", data);
+
+      // Auto login user after registering successfully
+      const loginRes = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+
+      if (loginRes?.error) {
+        // Fallback: if auto-sign-in fails, send them to login page
+        router.push("/login?registered=true");
+      } else {
+        router.push("/dashboard");
+        router.refresh();
+      }
+    } catch (err: any) {
+      const msg = err.response?.data?.message || "Registration failed. Please try again.";
+      setErrorMsg(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    signIn("google", { callbackUrl: "/dashboard" });
+  };
+
   return (
     <AuthCard>
       {/* Heading */}
       <div className="flex flex-col gap-1">
-        <h1
-          className="text-xl font-semibold text-foreground font-sora"
-        >
+        <h1 className="text-xl font-semibold text-foreground font-sora">
           Create your account
         </h1>
         <p className="text-sm text-muted-foreground">
@@ -23,14 +76,23 @@ export default function RegisterPage() {
         </p>
       </div>
 
-      {/* Form — wired in Week 3 (Days 10–11) */}
-      <form className="flex flex-col gap-5" noValidate>
+      {/* Global error banner */}
+      {errorMsg && (
+        <div className="p-3 text-sm text-error bg-error/10 border border-error/20 rounded-2xl">
+          {errorMsg}
+        </div>
+      )}
+
+      {/* Form */}
+      <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)} noValidate>
         <Input
           id="name"
           type="text"
           label="Full name"
           placeholder="Your name"
           autoComplete="name"
+          error={errors.name?.message}
+          {...register("name")}
         />
         <Input
           id="email"
@@ -38,6 +100,8 @@ export default function RegisterPage() {
           label="Email"
           placeholder="you@university.edu"
           autoComplete="email"
+          error={errors.email?.message}
+          {...register("email")}
         />
         <Input
           id="password"
@@ -45,10 +109,12 @@ export default function RegisterPage() {
           label="Password"
           placeholder="Min. 8 characters"
           autoComplete="new-password"
+          error={errors.password?.message}
+          {...register("password")}
         />
 
-        <Button type="submit" fullWidth size="lg">
-          Create account
+        <Button type="submit" fullWidth size="lg" disabled={isSubmitting}>
+          {isSubmitting ? "Creating account..." : "Create account"}
         </Button>
       </form>
 
@@ -61,8 +127,8 @@ export default function RegisterPage() {
         <span className="h-px flex-1 bg-outline-variant" />
       </div>
 
-      {/* Google OAuth stub — wired in Week 3 */}
-      <Button type="button" variant="ghost" fullWidth>
+      {/* Google OAuth */}
+      <Button type="button" variant="ghost" fullWidth onClick={handleGoogleLogin}>
         <svg
           viewBox="0 0 24 24"
           className="size-4 shrink-0"

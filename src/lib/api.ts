@@ -22,7 +22,11 @@ const api = axios.create({
 //   config.headers.Authorization = `Bearer ${token}`;
 api.interceptors.request.use(
   (config) => {
-    // Future: attach session token here
+    // Only attach authorization tokens for local internal API routes
+    const isLocal = !config.url?.startsWith("http://") && !config.url?.startsWith("https://");
+    if (isLocal) {
+      // Future: attach session token here, e.g. config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)

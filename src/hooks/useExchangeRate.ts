@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "@/lib/api";
 import { FALLBACK_RATES } from "@/constants";
 
 interface UseExchangeRateParams {
@@ -35,7 +35,7 @@ export function useExchangeRate({ amount, from, to }: UseExchangeRateParams) {
       setErrorMsg(null);
 
       try {
-        const res = await axios.get(
+        const res = await api.get(
           `https://api.frankfurter.app/latest?amount=${amount}&from=${from}&to=${to}`
         );
         if (!active) return;

@@ -41,7 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 # project docs (local only)
-AGENTS.md
+.agents/
 DESIGN.md
 TODO.md
 

@@ -13,17 +13,17 @@ datasource db {
 // Required by @auth/prisma-adapter. Do not rename these models or their fields.
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
+  id             String    @id @default(cuid())
+  name           String?
+  email          String    @unique
+  emailVerified  DateTime?
+  image          String?
   /// Bcrypt hash for credentials users. Null for OAuth-only accounts.
-  password      String?
-  /// ISO 4217 — the user's home currency used for expense conversion (e.g. "USD")
-  homeCurrency  String    @default("USD")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  password       String?
+  homeCurrencyId String?
+  homeCurrency   Currency? @relation("UserHomeCurrency", fields: [homeCurrencyId], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   // NextAuth relations
   accounts Account[]
@@ -34,6 +34,7 @@ model User {
   tasks     Task[]
   goals     Goal[]
   deadlines Deadline[]
+  categories Category[]
 }
 
 model Account {
@@ -72,6 +73,53 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+// ─── Currency ──────────────────────────────────────────────────────────────────
+
+model Currency {
+  id      String   @id @default(cuid())
+  name    String   @unique // ISO 4217 currency code, e.g. "USD", "EUR"
+  symbol  String   // e.g. "$", "€"
+  details String   // Full name, e.g. "US Dollar", "Euro"
+
+  users    User[]    @relation("UserHomeCurrency")
+  expenses Expense[]
+  goals    Goal[]
+}
+
+// ─── Category ──────────────────────────────────────────────────────────────────
+
+model Category {
+  id     String  @id @default(cuid())
+  name   String  // e.g. "Food & Groceries"
+  color  String? // Hex or tailwind color code for UI
+  userId String? // Null for global categories; user ID for user-specific ones
+
+  user     User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expenses Expense[]
+
+  @@unique([name, userId])
+}
+
+// ─── Priority ──────────────────────────────────────────────────────────────────
+
+model Priority {
+  id    String @id @default(cuid())
+  name  String @unique // e.g. "LOW", "MEDIUM", "HIGH"
+  level Int    // Numeric level for sorting (e.g. 1, 2, 3)
+  color String // UI rendering color
+  tasks Task[]
+}
+
+// ─── Status ───────────────────────────────────────────────────────────────────
+
+model Status {
+  id    String @id @default(cuid())
+  name  String @unique // e.g. "TODO", "IN_PROGRESS", "DONE"
+  order Int    // Sorting order in Kanban board/list
+  color String // UI rendering color
+  tasks Task[]
+}
+
 // ─── Expense ───────────────────────────────────────────────────────────────────
 
 model Expense {
@@ -80,11 +128,12 @@ model Expense {
   title           String
   /// Amount in the original transaction currency
   amount          Float
-  /// ISO 4217 code of the transaction currency (e.g. "GBP", "EUR")
-  currency        String
+  currencyId      String
+  currency        Currency @relation(fields: [currencyId], references: [id])
   /// Amount converted to the user's home currency at time of entry
   convertedAmount Float
-  category        String
+  categoryId      String
+  category        Category @relation(fields: [categoryId], references: [id])
   date            DateTime
   notes           String?  @db.Text
   createdAt       DateTime @default(now())
@@ -93,7 +142,7 @@ model Expense {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, date])
-  @@index([userId, category])
+  @@index([userId, categoryId])
 }
 
 // ─── Task ──────────────────────────────────────────────────────────────────────
@@ -103,8 +152,10 @@ model Task {
   userId      String
   title       String
   description String?   @db.Text
-  priority    Priority  @default(MEDIUM)
-  status      Status    @default(TODO)
+  priorityId  String
+  priority    Priority  @relation(fields: [priorityId], references: [id])
+  statusId    String
+  status      Status    @relation(fields: [statusId], references: [id])
   completed   Boolean   @default(false)
   dueDate     DateTime?
   createdAt   DateTime  @default(now())
@@ -125,8 +176,8 @@ model Goal {
   description   String?   @db.Text
   targetAmount  Float
   currentAmount Float     @default(0)
-  /// ISO 4217 — the currency this goal is tracked in
-  currency      String?
+  currencyId    String?
+  currency      Currency? @relation(fields: [currencyId], references: [id])
   deadline      DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -160,18 +211,6 @@ model Deadline {
 }
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
-
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
-}
-
-enum Status {
-  TODO
-  IN_PROGRESS
-  DONE
-}
 
 enum DeadlineType {
   VISA

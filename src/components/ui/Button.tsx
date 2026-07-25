@@ -16,7 +16,7 @@ export function Button({
   size = "md",
   fullWidth = false,
   children,
-  className = "",
+  className = "cursor-pointer",
   disabled,
   ...props
 }: ButtonProps) {

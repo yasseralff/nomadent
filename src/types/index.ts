@@ -13,12 +13,40 @@ export type DeadlineType =
 
 // ─── Core Entity Types ────────────────────────────────────────────────────────
 
+export interface Currency {
+  id: string;
+  name: string; // The currency code, e.g., "USD", "IDR"
+  symbol: string;
+  details: string; // Full name, e.g., "US Dollar"
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  color?: string;
+  userId?: string;
+}
+
+export interface Priority {
+  id: string;
+  name: string; // "LOW", "MEDIUM", "HIGH"
+  level: number;
+  color: string;
+}
+
+export interface Status {
+  id: string;
+  name: string; // "TODO", "IN_PROGRESS", "DONE"
+  order: number;
+  color: string;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  /** ISO 4217 code for the user's home currency (used for converted amounts) */
-  homeCurrency: string;
+  homeCurrencyId?: string;
+  homeCurrency?: Currency;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,11 +57,12 @@ export interface Expense {
   title: string;
   /** Amount in the original transaction currency */
   amount: number;
-  /** ISO 4217 currency code of the original transaction (e.g. "USD", "EUR") */
-  currency: string;
+  currencyId: string;
+  currency?: Currency;
   /** Amount converted to the user's home currency at time of entry */
   convertedAmount: number;
-  category: string;
+  categoryId: string;
+  category?: Category;
   date: Date;
   notes?: string;
   createdAt: Date;
@@ -45,8 +74,10 @@ export interface Task {
   userId: string;
   title: string;
   description?: string;
-  priority: TaskPriority;
-  status: TaskStatus;
+  priorityId: string;
+  priority?: Priority;
+  statusId: string;
+  status?: Status;
   completed: boolean;
   dueDate?: Date;
   createdAt: Date;
@@ -60,8 +91,8 @@ export interface Goal {
   description?: string;
   targetAmount: number;
   currentAmount: number;
-  /** ISO 4217 currency code for this goal (e.g. saving in home vs local currency) */
-  currency?: string;
+  currencyId?: string;
+  currency?: Currency;
   deadline?: Date;
   createdAt: Date;
   updatedAt: Date;

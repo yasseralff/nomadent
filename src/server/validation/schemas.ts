@@ -15,11 +15,10 @@ import { z } from "zod";
 export const createExpenseSchema = z.object({
   title: z.string().min(1, "Title is required").max(100),
   amount: z.number().positive("Amount must be positive"),
-  /** ISO 4217 currency code of the transaction */
-  currency: z.string().length(3, "Currency must be a 3-letter ISO code"),
+  currencyId: z.string().min(1, "Currency ID is required"),
   /** Amount in the user's home currency at time of entry */
   convertedAmount: z.number().positive("Converted amount must be positive"),
-  category: z.string().min(1, "Category is required"),
+  categoryId: z.string().min(1, "Category ID is required"),
   date: z.string().datetime({ message: "Invalid date" }),
   notes: z.string().max(500).optional(),
 });
@@ -34,7 +33,8 @@ export type UpdateExpenseInput = z.infer<typeof updateExpenseSchema>;
 export const createTaskSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),
   description: z.string().max(1000).optional(),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
+  priorityId: z.string().min(1, "Priority ID is required"),
+  statusId: z.string().min(1, "Status ID is required"),
   dueDate: z.string().datetime().optional(),
 });
 
@@ -52,8 +52,7 @@ export const createGoalSchema = z.object({
   description: z.string().max(1000).optional(),
   targetAmount: z.number().positive("Target amount must be positive"),
   currentAmount: z.number().min(0).default(0),
-  /** ISO 4217 currency code for this goal */
-  currency: z.string().length(3, "Currency must be a 3-letter ISO code").optional(),
+  currencyId: z.string().optional(),
   deadline: z.string().datetime().optional(),
 });
 

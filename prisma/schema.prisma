@@ -13,27 +13,42 @@ datasource db {
 // Required by @auth/prisma-adapter. Do not rename these models or their fields.
 
 model User {
-  id             String    @id @default(cuid())
-  name           String?
-  email          String    @unique
-  emailVerified  DateTime?
-  image          String?
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
   /// Bcrypt hash for credentials users. Null for OAuth-only accounts.
-  password       String?
+  password      String?
+
+  // Profile fields — collected in onboarding/Settings, not during registration
+  /// University name. Null until the user fills it in during onboarding.
+  university    String?
+  /// ISO 3166-1 alpha-2 country code (e.g. "US", "AU"). Defaults to "US".
+  country       String    @default("US")
+
+  // Home currency — linked to the Currency lookup table
   homeCurrencyId String?
   homeCurrency   Currency? @relation("UserHomeCurrency", fields: [homeCurrencyId], references: [id])
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+
+  // Email verification — custom token stored on the user (not the Auth.js VerificationToken table)
+  /// Single-use token sent in the verification email link.
+  emailVerificationToken  String?   @unique
+  /// When the token expires (24 hours after creation).
+  emailVerificationExpiry DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // NextAuth relations
   accounts Account[]
   sessions Session[]
 
   // Nomadent entity relations
-  expenses  Expense[]
-  tasks     Task[]
-  goals     Goal[]
-  deadlines Deadline[]
+  expenses   Expense[]
+  tasks      Task[]
+  goals      Goal[]
+  deadlines  Deadline[]
   categories Category[]
 }
 

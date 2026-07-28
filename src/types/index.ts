@@ -45,6 +45,12 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  emailVerified: Date | null;
+  image?: string | null;
+  /** University name — null until set in Settings/onboarding */
+  university?: string | null;
+  /** ISO 2-letter country code, e.g. "US", "AU". Defaults to "US". */
+  country: string;
   homeCurrencyId?: string;
   homeCurrency?: Currency;
   createdAt: Date;

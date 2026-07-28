@@ -1,0 +1,44 @@
+# Caddyfile — local HTTPS reverse proxy for Google OAuth development
+#
+# WHY WE NEED THIS:
+#   Google OAuth requires a real domain in authorized redirect URIs.
+#   localhost is NOT accepted for OAuth callbacks.
+#   Caddy gives us https://app.nomadent.local with a valid local certificate.
+#
+# SETUP (one-time, do this before testing Google OAuth):
+#
+#   1. Download Caddy from https://caddyserver.com/download (Windows .exe)
+#      and put it somewhere on your PATH (e.g. C:\caddy\caddy.exe)
+#
+#   2. Edit C:\Windows\System32\drivers\etc\hosts (run Notepad as Admin):
+#        127.0.0.1   app.nomadent.local
+#
+#   3. Run Caddy (from the project root, where this Caddyfile is):
+#        caddy run
+#
+#      On first run, Caddy will install a local root CA and auto-generate
+#      a certificate for app.nomadent.local. Trust it when prompted.
+#      (Or run: caddy trust)
+#
+#   4. Keep BOTH running simultaneously:
+#        - npm run dev  → Next.js on localhost:3000
+#        - caddy run    → Caddy proxy on https://app.nomadent.local:443
+#
+#   5. In Google Cloud Console:
+#        Authorized JavaScript origins:
+#          https://app.nomadent.local
+#        Authorized redirect URIs:
+#          https://app.nomadent.local/api/auth/callback/google
+#
+#   6. In .env.local:
+#        NEXTAUTH_URL=https://app.nomadent.local
+#
+#   7. Visit https://app.nomadent.local instead of localhost:3000
+#
+# IMPORTANT: When done testing OAuth, you can revert NEXTAUTH_URL to
+# http://localhost:3000 for normal development without Google OAuth.
+
+app.nomadent.local {
+  reverse_proxy localhost:3000
+  tls internal
+}

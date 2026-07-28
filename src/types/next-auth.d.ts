@@ -17,16 +17,20 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
+      /** Null means the user has not verified their email yet. */
+      emailVerified: Date | null;
     };
   }
 
   interface User {
     id: string;
+    emailVerified?: Date | null;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
+    emailVerified?: Date | null;
   }
 }

@@ -4,7 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { loginSchema } from "@/server/validation/auth";
+import { loginSchema } from "@/server/validation/schemas";
 
 /**
  * Auth.js v4 configuration.
@@ -62,24 +62,40 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     /**
-     * Attach the database user ID to the JWT token on sign-in.
-     * Without this, `session.user.id` would be undefined in route handlers.
+     * Attach the database user ID and emailVerified status to the JWT token
+     * on sign-in. Both are needed so middleware can gate access without a DB
+     * call on every request.
+     *
+     * Google OAuth users: emailVerified is set to the current date because
+     * Google already verified their email — they skip the verification gate.
      */
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
+        // Persist emailVerified from DB into JWT so session picks it up
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { emailVerified: true },
+        });
+        token.emailVerified = dbUser?.emailVerified ?? null;
+      }
+      // Google users are always considered verified
+      if (account?.provider === "google") {
+        token.emailVerified = new Date();
       }
       return token;
     },
 
     /**
-     * Expose the user ID on the session object so client components
-     * and server route handlers can read it via `useSession()` /
-     * `getServerSession(authOptions)`.
+     * Expose user ID and emailVerified on the session object so:
+     *  - Client components can read it via useSession()
+     *  - Server route handlers can read it via getServerSession(authOptions)
+     *  - middleware.ts can read it to gate unverified users
      */
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string;
+        session.user.emailVerified = (token.emailVerified as Date | null) ?? null;
       }
       return session;
     },

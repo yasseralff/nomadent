@@ -29,7 +29,6 @@ import api from "@/lib/api";
  */
 export default function VerifyEmailPage() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const errorParam = searchParams.get("error");
 
   const [resendStatus, setResendStatus] = useState<

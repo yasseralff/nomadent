@@ -1,18 +1,29 @@
 "use client";
 
-import React from "react";
-import { Plus } from "lucide-react";
+import React, { useState } from "react";
+import { Plus, CalendarClock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { DeadlineCard } from "@/components/deadlines/DeadlineCard";
+import { DeadlineForm } from "@/components/deadlines/DeadlineForm";
 import { WorkHoursBar } from "@/components/deadlines/WorkHoursBar";
+import { useDeadlines, useCreateDeadline } from "@/hooks/useDeadlines";
 
 export default function DeadlinesPage() {
-  const mockDeadlines = [
-    { id: 1, title: "F-1 Visa Extension", date: "2026-08-27", daysLeft: 45, category: "VISA", urgency: "CRITICAL" },
-    { id: 2, title: "Health Insurance Renewal", date: "2026-09-26", daysLeft: 75, category: "INSURANCE", urgency: "WARNING" },
-    { id: 3, title: "Biometrics Appointment", date: "2026-07-28", daysLeft: 15, category: "BIOMETRICS", urgency: "CRITICAL" },
-    { id: 4, title: "CPT Employment Contract Review", date: "2026-08-15", daysLeft: 33, category: "OPT_CPT", urgency: "WARNING" }
-  ];
+  const [showCreateForm, setShowCreateForm] = useState(false);
+
+  const { data, isLoading, isError, error } = useDeadlines();
+  const { mutate: createDeadline, isPending: isCreating } = useCreateDeadline();
+
+  const deadlines = data?.data ?? [];
+  const empty = !isLoading && !isError && deadlines.length === 0;
+
+  const handleCreate = (formData: Parameters<typeof createDeadline>[0]) => {
+    createDeadline(formData, {
+      onSuccess: () => {
+        setShowCreateForm(false);
+      },
+    });
+  };
 
   return (
     <div className="flex flex-col gap-6 w-full animate-in fade-in duration-300">
@@ -24,9 +35,9 @@ export default function DeadlinesPage() {
             Visa, insurance, and immigration dates — the ones that actually matter.
           </p>
         </div>
-        
+
         <Button
-          onClick={() => console.log("add deadline clicked")}
+          onClick={() => setShowCreateForm((v) => !v)}
           size="md"
           className="flex items-center gap-2"
         >
@@ -35,12 +46,74 @@ export default function DeadlinesPage() {
         </Button>
       </div>
 
+      {/* Create form — expands above the grid */}
+      {showCreateForm && (
+        <DeadlineForm
+          isSubmitting={isCreating}
+          onSubmit={handleCreate}
+          onClose={() => setShowCreateForm(false)}
+        />
+      )}
+
+      {/* Loading state */}
+      {isLoading && (
+        <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
+          <div className="size-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <p className="text-sm font-sans">Loading deadlines…</p>
+        </div>
+      )}
+
+      {/* Error state */}
+      {isError && (
+        <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+          <div className="size-12 rounded-full bg-error/10 flex items-center justify-center">
+            <AlertCircle size={22} className="text-error" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-sm font-semibold text-on-surface font-sora">
+              Couldn&apos;t load deadlines
+            </p>
+            <p className="text-xs text-muted-foreground font-sans">
+              {error instanceof Error ? error.message : "Something went wrong. Please try again."}
+            </p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => window.location.reload()}>
+            Try again
+          </Button>
+        </div>
+      )}
+
+      {/* Empty state */}
+      {empty && (
+        <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+          <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center">
+            <CalendarClock size={22} className="text-primary" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-sm font-semibold text-on-surface font-sora">No deadlines yet</p>
+            <p className="text-xs text-muted-foreground font-sans">
+              Add your first visa, insurance, or document deadline to stay on top of it.
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowCreateForm(true)}
+          >
+            <Plus size={14} />
+            Create your first deadline
+          </Button>
+        </div>
+      )}
+
       {/* Main Grid defined at page level */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {mockDeadlines.map((deadline) => (
-          <DeadlineCard key={deadline.id} deadline={deadline} />
-        ))}
-      </div>
+      {!isLoading && !isError && deadlines.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {deadlines.map((deadline) => (
+            <DeadlineCard key={deadline.id} deadline={deadline} />
+          ))}
+        </div>
+      )}
 
       <WorkHoursBar />
     </div>

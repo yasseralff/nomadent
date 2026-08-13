@@ -39,6 +39,15 @@ interface DeadlineCardProps {
   deadline: Deadline;
 }
 
+/**
+ * Dense list-row variant (§10.6). The urgency ring (§10.8 signature element):
+ *  - CRITICAL (≤7 days): ping ring (expanding + fading sonar) + solid inner ring
+ *  - WARNING  (≤14 days): pulse ring (breathing) + solid inner ring
+ *  - CALM: plain static ring
+ *
+ * This component does NOT own its own border or background — the parent
+ * container in page.tsx provides the rounded outer card and hairline dividers.
+ */
 export function DeadlineCard({ deadline }: DeadlineCardProps) {
   const now = useNow();
   const daysLeft = Math.ceil(
@@ -52,56 +61,88 @@ export function DeadlineCard({ deadline }: DeadlineCardProps) {
         ? "WARNING"
         : "CALM";
 
-  const urgencyClasses: Record<Urgency, string> = {
-    CRITICAL: "border-error text-error bg-error/5",
-    WARNING: "border-warning text-warning bg-warning/5",
-    CALM: "border-outline-variant text-on-surface-variant",
+  /**
+   * Row-level left-edge accent — replaces the full card bg of the spacious variant.
+   * Only CRITICAL and WARNING rows get a tinted background stripe; CALM rows blend in.
+   */
+  const rowAccentClasses: Record<Urgency, string> = {
+    CRITICAL: "border-l-2 border-l-error bg-error/[0.03]",
+    WARNING:  "border-l-2 border-l-warning bg-warning/[0.03]",
+    CALM:     "border-l-2 border-l-transparent",
   };
 
+  /** Inner icon ring color */
   const ringClasses: Record<Urgency, string> = {
-    CRITICAL: "border-error",
-    WARNING: "border-warning",
-    CALM: "border-outline",
+    CRITICAL: "border-error text-error",
+    WARNING:  "border-warning text-warning",
+    CALM:     "border-outline text-on-surface-variant",
+  };
+
+  /** Ping / pulse overlay ring — only shown for urgent states */
+  const animatedRingClasses: Record<Urgency, string | null> = {
+    CRITICAL: "border-error animate-ping",
+    WARNING:  "border-warning animate-pulse",
+    CALM:     null,
   };
 
   const typeLabel =
     DEADLINE_TYPES.find((t) => t.value === deadline.type)?.label ?? deadline.type;
 
+  const animatedRing = animatedRingClasses[urgency];
+
   return (
     <div
-      className={`border rounded-3xl p-6 flex items-start gap-4 transition-all hover:shadow-lg bg-surface-container ${urgencyClasses[urgency]}`}
+      className={`flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-surface-container-high ${rowAccentClasses[urgency]}`}
     >
+      {/* Urgency ring — §10.8 signature element */}
       <div className="relative shrink-0">
+        {/* Animated overlay ring (ping = sonar burst, pulse = breath) */}
+        {animatedRing && (
+          <div
+            className={`absolute inset-0 rounded-full border-2 opacity-60 ${animatedRing}`}
+          />
+        )}
+        {/* Solid inner ring with icon */}
         <div
-          className={`size-12 rounded-full border-2 flex items-center justify-center ${ringClasses[urgency]}`}
+          className={`size-10 rounded-full border-2 flex items-center justify-center bg-surface-container ${ringClasses[urgency]}`}
         >
-          {TYPE_ICONS[deadline.type] ?? <CalendarClock size={18} />}
+          {TYPE_ICONS[deadline.type] ?? <CalendarClock size={16} />}
         </div>
       </div>
 
+      {/* Content */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] uppercase font-bold tracking-wider font-sora px-2 py-0.5 rounded bg-surface-container-lowest border border-outline-variant/30 text-on-surface-variant">
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-on-surface font-sans truncate">
+            {deadline.title}
+          </h3>
+          <span className="text-[10px] uppercase font-bold tracking-wider font-sora px-1.5 py-px rounded bg-surface-container-lowest border border-outline-variant/30 text-on-surface-variant shrink-0">
             {typeLabel}
           </span>
-          <span className="text-xs font-semibold font-sora" suppressHydrationWarning>
-            {daysLeft > 0 ? `${daysLeft} days left` : "Overdue"}
-          </span>
         </div>
-        <h3 className="text-base font-bold text-on-surface mt-2 font-sans truncate">
-          {deadline.title}
-        </h3>
-        <p className="text-xs text-muted-foreground mt-1 font-sans">
+        <p className="text-xs text-muted-foreground mt-0.5 font-sans">
           Due: {formatDate(deadline.dueDate)}
+          {deadline.notes && <span className="ml-2 opacity-60">· {deadline.notes}</span>}
         </p>
-        {deadline.notes && (
-          <p className="text-xs text-muted-foreground mt-1.5 font-sans truncate">
-            {deadline.notes}
-          </p>
-        )}
+      </div>
+
+      {/* Days-left badge — right-aligned */}
+      <div className="shrink-0 text-right">
+        <span
+          className={`text-xs font-semibold font-sora ${
+            urgency === "CRITICAL"
+              ? "text-error"
+              : urgency === "WARNING"
+                ? "text-warning"
+                : "text-on-surface-variant"
+          }`}
+          suppressHydrationWarning
+        >
+          {daysLeft > 0 ? `${daysLeft}d left` : "Overdue"}
+        </span>
         {deadline.workHourCap && (
-          <p className="text-xs text-on-surface-variant mt-1.5 font-sans">
-            Work cap: {deadline.workHourCap}h
+          <p className="text-[10px] text-on-surface-variant mt-0.5 font-sans">
+            Cap: {deadline.workHourCap}h/wk
           </p>
         )}
       </div>

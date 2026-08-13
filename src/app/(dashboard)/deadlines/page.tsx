@@ -106,9 +106,9 @@ export default function DeadlinesPage() {
         </div>
       )}
 
-      {/* Main Grid defined at page level */}
+      {/* Dense list container (§10.6) — rounded outer card, hairline dividers per row */}
       {!isLoading && !isError && deadlines.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="rounded-3xl border border-outline-variant bg-surface-container overflow-hidden divide-y divide-outline-variant/40">
           {deadlines.map((deadline) => (
             <DeadlineCard key={deadline.id} deadline={deadline} />
           ))}
